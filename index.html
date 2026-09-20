@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datekt — Скоро</title>
+    <link rel="icon" type="image/png" href="datekt-logo.png">
+
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('datekt-theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
+
+    <style>
+        @font-face {
+            font-family: 'Datekt-Black';
+            src: url('Datekt-Black.ttf') format('truetype');
+            font-weight: bold;
+        }
+        @font-face {
+            font-family: 'Datekt-Regular';
+            src: url('Datekt-Regular.ttf') format('truetype');
+            font-weight: normal;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ====== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ ====== */
+        :root {
+            --accent: #67d934;
+            --accent-glow: rgba(103, 217, 52, 0.35);
+            --accent-glow-soft: rgba(103, 217, 52, 0.12);
+        }
+
+        html[data-theme="dark"] {
+            --bg: #0d1117;
+            --bg-soft: #161b22;
+            --bg-soft-2: #1c2129;
+            --border: #21262d;
+            --text: #c9d1d9;
+            --text-dim: #8b949e;
+            --text-strong: #ffffff;
+            --grid-line: rgba(139, 148, 158, 0.06);
+            --btn-hover-shadow: rgba(0, 0, 0, 0.45);
+            --toggle-bg: rgba(22, 27, 34, 0.85);
+        }
+
+        html[data-theme="light"] {
+            --bg: #f6f8fa;
+            --bg-soft: #ffffff;
+            --bg-soft-2: #f3f5f8;
+            --border: #d0d7de;
+            --text: #1f2328;
+            --text-dim: #59636e;
+            --text-strong: #0a0c10;
+            --grid-line: rgba(31, 35, 40, 0.06);
+            --btn-hover-shadow: rgba(31, 35, 40, 0.12);
+            --toggle-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
+        ::view-transition-old(root) { z-index: 1; }
+        ::view-transition-new(root) { z-index: 2; }
+
+        html.theme-anim,
+        html.theme-anim *,
+        html.theme-anim *::before,
+        html.theme-anim *::after {
+            transition:
+                background-color 0.5s ease,
+                background 0.5s ease,
+                color 0.5s ease,
+                border-color 0.5s ease,
+                box-shadow 0.5s ease,
+                fill 0.5s ease,
+                stroke 0.5s ease !important;
+        }
+
+        html, body { height: 100%; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Datekt-Regular', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            position: relative;
+            isolation: isolate;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background:
+                radial-gradient(ellipse at 20% 10%, var(--accent-glow-soft), transparent 55%),
+                radial-gradient(ellipse at 80% 90%, var(--accent-glow-soft), transparent 55%),
+                var(--bg);
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove {
+            from { background-position: 0 0, 0 0; }
+            to   { background-position: 40px 40px, 40px 40px; }
+        }
+
+        ::selection { background: var(--accent); color: #0d1117; }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* ====== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ====== */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: var(--toggle-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px var(--btn-hover-shadow);
+            /* чтобы кнопка не исчезала при круговом раскрытии */
+            view-transition-name: theme-toggle-btn;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: rotate(20deg) scale(1.05);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+        .theme-toggle svg { width: 22px; height: 22px; }
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            position: absolute;
+            transition: opacity 0.3s ease, transform 0.4s ease;
+        }
+        html[data-theme="dark"] .theme-toggle .icon-sun  { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+        html[data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; transform: rotate(0) scale(1); }
+        html[data-theme="light"] .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0) scale(1); }
+        html[data-theme="light"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+
+        /* Кнопка-переключатель не участвует в круговом раскрытии */
+        ::view-transition-old(theme-toggle-btn),
+        ::view-transition-new(theme-toggle-btn) {
+            animation: none;
+        }
+        ::view-transition-old(theme-toggle-btn) { display: none; }
+        ::view-transition-new(theme-toggle-btn) { mix-blend-mode: normal; }
+
+        .main-container {
+            text-align: center;
+            max-width: 620px;
+            width: 100%;
+            margin: auto;
+            animation: fadeInUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-logo {
+            font-family: 'Datekt-Black', sans-serif;
+            font-size: 3.6rem;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            background: linear-gradient(180deg, var(--text-strong) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 24px var(--accent-glow));
+        }
+
+        .slogan {
+            font-size: 1rem;
+            color: var(--text-dim);
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            border-radius: 100px;
+            background: var(--accent-glow-soft);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 26px;
+        }
+        .status-badge .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent);
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .title {
+            font-family: 'Datekt-Black', sans-serif;
+            font-size: 2.4rem;
+            color: var(--text-strong);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-box {
+            font-family: 'Datekt-Black', sans-serif;
+            font-size: 1.6rem;
+            color: var(--accent);
+            min-height: 42px;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .social-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+            max-width: 460px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-family: 'Datekt-Regular', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-strong);
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            transition: all 0.25s ease;
+            overflow: hidden;
+        }
+
+        .btn svg {
+            width: 20px; height: 20px;
+            flex-shrink: 0;
+            transition: transform 0.25s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: var(--bg-soft-2);
+            box-shadow: 0 10px 24px var(--btn-hover-shadow);
+        }
+        .btn:hover svg { transform: scale(1.1) rotate(-4deg); }
+
+        .btn-tg:hover { border-color: #24A1DE; color: #24A1DE; box-shadow: 0 10px 24px rgba(36, 161, 222, 0.2); }
+        .btn-tt:hover { border-color: #ff0050; color: #ff0050; box-shadow: 0 10px 24px rgba(255, 0, 80, 0.2); }
+        .btn-dc:hover { border-color: #5865F2; color: #5865F2; box-shadow: 0 10px 24px rgba(88, 101, 242, 0.2); }
+        .btn-gh:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 10px 24px var(--accent-glow); }
+
+        footer {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 40px;
+            letter-spacing: 0.5px;
+        }
+        footer span { color: var(--accent); }
+
+        @media (max-width: 480px) {
+            .social-links { grid-template-columns: 1fr; }
+            .brand-logo { font-size: 2.8rem; letter-spacing: 3px; }
+            .title { font-size: 1.9rem; }
+            .status-box { font-size: 1.3rem; }
+            .slogan { font-size: 0.85rem; letter-spacing: 2px; }
+            .theme-toggle { width: 42px; height: 42px; top: 14px; right: 14px; }
+        }
+
+        /* Уважаем пользователей, отключивших анимации */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему" title="Переключить тему">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+        </svg>
+    </button>
+
+    <div class="main-container">
+        <div class="brand-logo">DATEKT</div>
+        <div class="slogan">Счастливая цифровая жизнь</div>
+
+        <div class="status-badge">
+            <span class="dot"></span>
+            <span>В разработке</span>
+        </div>
+
+        <h1 class="title">Скоро сайт</h1>
+        <div class="status-box" id="status">soon.</div>
+
+        <div class="social-links">
+            <a href="https://t.me/datekt" target="_blank" rel="noopener" class="btn btn-tg">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                Telegram
+            </a>
+            <a href="https://tiktok.com/@da.tekt" target="_blank" rel="noopener" class="btn btn-tt">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.1z"/></svg>
+                TikTok
+            </a>
+            <a href="https://discord.gg/datekt" target="_blank" rel="noopener" class="btn btn-dc">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37A19.8 19.8 0 0 0 15.41 3a13.7 13.7 0 0 0-.62 1.28 18.3 18.3 0 0 0-5.57 0A13.5 13.5 0 0 0 8.6 3a19.7 19.7 0 0 0-4.92 1.37C.55 9.06-.32 13.65.11 18.17a19.9 19.9 0 0 0 6.03 3.06 14.7 14.7 0 0 0 1.29-2.1 12.9 12.9 0 0 1-2.03-.98c.17-.12.34-.25.5-.38a14.2 14.2 0 0 0 12.19 0c.17.13.34.26.51.38a12.9 12.9 0 0 1-2.04.99 14.4 14.4 0 0 0 1.29 2.09 19.8 19.8 0 0 0 6.03-3.06c.5-5.24-.84-9.78-3.56-13.8zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.95-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42zm7.96 0c-1.18 0-2.16-1.09-2.16-2.42s.95-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>
+                Discord
+            </a>
+            <a href="https://github.com/datekt" target="_blank" rel="noopener" class="btn btn-gh">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.11-.75.41-1.27.74-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.2-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.19 1.19a11.1 11.1 0 0 1 5.81 0c2.21-1.5 3.18-1.19 3.18-1.19.63 1.58.23 2.75.11 3.04.75.81 1.2 1.84 1.2 3.1 0 4.43-2.7 5.41-5.26 5.69.42.36.79 1.07.79 2.16v3.2c0 .3.21.67.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                GitHub
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Datekt Media. Разработано <span>для людей</span>.
+    </footer>
+
+    <script>
+        // Переключение статуса "soon."
+        const statusElement = document.getElementById('status');
+        const phrases = ['soon.', 'soon..', 'soon...'];
+        let currentIndex = 0;
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % phrases.length;
+            statusElement.textContent = phrases[currentIndex];
+        }, 800);
+
+        // ====== Плавная смена темы ======
+        const themeToggle = document.getElementById('themeToggle');
+
+        function applyTheme(next) {
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('datekt-theme', next); } catch (e) {}
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+
+            // Если браузер не поддерживает View Transitions — плавный CSS-fallback
+            if (!document.startViewTransition) {
+                const root = document.documentElement;
+                root.classList.add('theme-anim');
+                applyTheme(next);
+                setTimeout(() => root.classList.remove('theme-anim'), 550);
+                return;
+            }
+
+            // Точка старта анимации — центр кнопки
+            const rect = themeToggle.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            const endRadius = Math.hypot(
+                Math.max(x, window.innerWidth - x),
+                Math.max(y, window.innerHeight - y)
+            );
+
+            const transition = document.startViewTransition(() => applyTheme(next));
+
+            transition.ready.then(() => {
+                document.documentElement.animate(
+                    {
+                        clipPath: [
+                            `circle(0px at ${x}px ${y}px)`,
+                            `circle(${endRadius}px at ${x}px ${y}px)`
+                        ]
+                    },
+                    {
+                        duration: 700,
+                        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                        pseudoElement: '::view-transition-new(root)'
+                    }
+                );
+            });
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+    </script>
+
+</body>
+</html>
