@@ -29,7 +29,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ====== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ ====== */
         :root {
             --accent: #67d934;
             --accent-glow: rgba(103, 217, 52, 0.35);
@@ -136,7 +135,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-        /* ====== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ====== */
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -176,7 +174,6 @@
         html[data-theme="light"] .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0) scale(1); }
         html[data-theme="light"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
 
-        /* Кнопка-переключатель не участвует в круговом раскрытии */
         ::view-transition-old(theme-toggle-btn),
         ::view-transition-new(theme-toggle-btn) {
             animation: none;
@@ -325,7 +322,6 @@
             .theme-toggle { width: 42px; height: 42px; top: 14px; right: 14px; }
         }
 
-        /* Уважаем пользователей, отключивших анимации */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.001ms !important;
@@ -384,7 +380,6 @@
     </footer>
 
     <script>
-        // Переключение статуса "soon."
         const statusElement = document.getElementById('status');
         const phrases = ['soon.', 'soon..', 'soon...'];
         let currentIndex = 0;
@@ -393,7 +388,6 @@
             statusElement.textContent = phrases[currentIndex];
         }, 800);
 
-        // ====== Плавная смена темы ======
         const themeToggle = document.getElementById('themeToggle');
 
         function applyTheme(next) {
@@ -405,7 +399,6 @@
             const current = document.documentElement.getAttribute('data-theme') || 'dark';
             const next = current === 'dark' ? 'light' : 'dark';
 
-            // Если браузер не поддерживает View Transitions — плавный CSS-fallback
             if (!document.startViewTransition) {
                 const root = document.documentElement;
                 root.classList.add('theme-anim');
@@ -414,7 +407,6 @@
                 return;
             }
 
-            // Точка старта анимации — центр кнопки
             const rect = themeToggle.getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
